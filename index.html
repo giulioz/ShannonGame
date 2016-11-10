@@ -1,0 +1,102 @@
+<!doctype HTML>
+
+<!-- 
+    Shannon Game using HTML5 and JavaScript
+    08/11/2016, Giulio Zausa
+-->
+
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="app.css">
+
+<!-- Page Content -->
+<div class="container">
+    <!-- Page Header -->
+    <header class="page-header">
+		<h1>Il Gioco di Shannon</h1>
+        <p class="lead">Trova il contenuto informativo dei testi!</p>
+	</header>
+    
+    <!-- Game Panels -->
+    <div class="row">
+        <div class="col-md-8">
+            <div class="well well-lg game-well">
+                <span id="output"><i>Seleziona un Argomento a destra per cominciare!</i></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="panel panel-default">
+                <div class="panel-heading">Nuova Partita</div>
+                <div class="panel-body">                 
+                    <div class="dropdown dropinline">
+                        <button class="btn btn-default dropdown-toggle" type="button" id="selDropDown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                            Seleziona l'Argomento
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="selDropDown" id="dropd"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading">Statistiche</div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal">
+                        <dt>Errori:</dt> <dd><var id="errors">0</var></dd>
+                        <dt>Rindondanza:</dt> <dd><var id="rec">0</var></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Highscores Panel -->
+    <div class="panel panel-default topmargin">
+        <div class="panel-heading">Punteggi più alti</div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Argomento</th>
+                    <th>Errori</th>
+                    <th>Rindondanza</th>
+                </tr>
+            </thead>
+            
+            <tbody id="hiTable">
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Credits -->
+    <div class="text-right text-muted"><i>© 2016, Giulio Zausa</i></div>
+</div>
+
+<!-- Highscore save modal -->
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="hsModalLabel" id="hsModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Partita Terminata</h4>
+            </div>
+            <div class="modal-body">
+                <p>Hai fatto <span id="modalerr"></span> errori.</p>
+                <input type="email" class="form-control" id="nameInput" placeholder="Il tuo Nome">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveClick()">Salva punteggio</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="lib/jquery-3.1.1.min.js"></script>
+<script src="lib/bootstrap.min.js"></script>
+<script src="lib/jsonio.js"></script>
+<script src="lib/keyinput.js"></script>
+<script src="lib/textutility.js"></script>
+<script src="texts.js"></script>
+<script src="app.js"></script>
