@@ -4,10 +4,13 @@
 //
 
 // Hardcoded JSONs URLs
-var highScoreURL = "https://api.myjson.com/bins/1uu0c";
+const highScoreURL = "https://api.myjson.com/bins/1uu0c";
 
-// Number of Words per game
-var nwords = 100;
+// Statistics
+const	nwords		= 20;
+const	nchars		= 27;
+var		infoPerChar	= Math.log2(nchars);
+var 	info1Bit	= Math.log2(2);
 
 // DOM Elements
 var outputSpan  = document.getElementById("output"),
@@ -19,16 +22,14 @@ var outputSpan  = document.getElementById("output"),
     hiTable     = document.getElementById("hiTable");
 
 // Global Variables
-var currentText, currentIndex, currentErrors, currentL, currentSubject;
+var currentText, currentIndex, currentErrors, currentL, currentSubject, currentInfoS, currentInfoT;
 
 // Populate Lists
 PopulateDropDown();
 PopulateHiScores();
 
 // Keyboard Hook
-RegisterCharEvent(onKey);
-function onKey(key)
-{
+RegisterCharEvent(function(key) {
     // End Condition
     if (currentIndex < currentText.length)
     {
@@ -36,8 +37,10 @@ function onKey(key)
         if (key.toLowerCase() != removeAccents(currentText.substring(currentIndex, currentIndex + 1).toLowerCase())) {
             currentErrors++;
             errorsSpan.innerText = currentErrors;
-            recSpan.innerText = currentErrors / currentL;
+            recSpan.innerText = currentInfoT - currentInfoS;
         }
+		currentInfoS = (currentL - currentErrors) * info1Bit + currentErrors * infoPerChar;
+		recSpan.innerText = currentInfoT - currentInfoS;
         
         // Errors colors
         if (currentErrors == 0) {
@@ -52,14 +55,15 @@ function onKey(key)
         
         // Update output
         currentIndex++;
-        outputSpan.innerText = RenderGrayedText(currentText, "*", currentIndex);
+        outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
         
         // Checks if next character is a letter
         while (currentIndex < currentText.length && !IsCharOrSpace(removeAccents(currentText.substring(currentIndex, currentIndex + 1)).toUpperCase().charCodeAt(0)))
         {
             currentIndex++;
-            outputSpan.innerText = RenderGrayedText(currentText, "*", currentIndex);
+            outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
             currentL--;
+			currentInfoT = currentL * infoPerChar;
         }
         
         // Win Modal
@@ -68,13 +72,15 @@ function onKey(key)
             $('#hsModal').modal();
         }
     }
-}
+});
 
 // Save Highscore
 function saveClick()
 {
     var nameToSave = nameInput.value;
-    var rec = currentErrors / currentL;
+	currentInfoS = (currentL - currentErrors) * info1Bit + currentErrors * infoPerChar;
+	currentInfoT = currentL * infoPerChar;
+    var rec = currentInfoT - currentInfoS;
     loadJSON(highScoreURL, function(data){
         data.push({"name": nameToSave, "err": currentErrors, "rec": rec, "l": currentL, "subject": subjects[currentSubject]});
         saveJSON(highScoreURL, data, function () {
@@ -93,7 +99,9 @@ function newGame(subject)
     currentIndex = 0;
     currentErrors = 0;
     currentL = currentText.length;
-    outputSpan.innerText = RenderGrayedText(currentText, "*", currentIndex);
+	currentInfoT = currentL * infoPerChar;
+	currentInfoS = (currentL - currentErrors) * info1Bit + currentErrors * infoPerChar;
+    outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
 }
 
 function PopulateDropDown()
