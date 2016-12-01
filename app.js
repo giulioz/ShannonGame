@@ -22,17 +22,21 @@ var outputSpan  = document.getElementById("output"),
     nameInput   = document.getElementById("nameInput"),
     dropd       = document.getElementById("dropd"),
     hiTable     = document.getElementById("hiTable");
+	ButtonHere  = document.getElementById("ButtonHere");
 	
 // Global Variables
 var currentText, currentIndex, currentErrors, currentLength, currentSubject, currentInfoS, currentInfoT, currentGuesses;
 
-// Populate Lists
-PopulateDropDown();
+// APPLICATION Starts
+// -----------------------------
+PopulateDropDown(); // Populate Lists
 PopulateHiScores();
+HideButton(true); // Hides Button
 
 // TESTO CIFRATO button Click
 document.getElementById("testoCifratoBut").addEventListener("click", function(){
     outputSpan.innerText = ErrSentence(currentText, currentGuesses);
+	HideButton(true);
 });
 
 // Keyboard Hook
@@ -84,6 +88,9 @@ RegisterCharEvent(function(key) {
             $('#hsModal').modal();
         }
     }
+	else {
+        HideButton(false);
+    }
 });
 
 // Save Highscore
@@ -94,7 +101,9 @@ function saveClick()
 	currentInfoT = currentLength * infoPerChar;
     var rec = currentInfoT - currentInfoS;
     loadJSON(highScoreURL, function(data){
-        data.push({"name": nameToSave, "err": currentErrors, "rec": rec, "l": currentLength, "subject": subjects[currentSubject]});
+        var roundRec = Math.round(rec * 100) / 100;
+        data.push({"name": nameToSave, "err": currentErrors,
+                    "rec": roundRec, "l": currentLength, "subject": subjects[currentSubject]});
         saveJSON(highScoreURL, data, function () {
             PopulateHiScores();
             $('#hsModal').modal('hide');
@@ -106,15 +115,31 @@ function saveClick()
 function newGame(subject)
 {
     // Load Texts
+	var rendundancy = 0;
     currentSubject = subject;
     currentText = GetRandomSentence(texts[subject][randomIntFromInterval(0, texts[subject].length)], nwords).trim();
     currentIndex = 0;
     currentErrors = 0;
     currentGuesses = 0;
+	percErrors.innerText = "(0%)";
+	rindondanza.innerText = rendundancy + " bit";
+	errori.innerText = currentErrors;
+	giuste.innerText = currentGuesses;
     currentLength = currentText.length;
 	currentInfoT = currentLength * infoPerChar;
 	currentInfoS = currentGuesses * info1Bit + currentErrors * infoPerChar;
     outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
+}
+
+// Creates a button to access part 2 of the game
+function HideButton(hidden)
+{
+    if(hidden) {
+        testoCifratoBut.style.visibility = 'hidden';
+    }
+    else {
+        testoCifratoBut.style.visibility = 'visible';
+    }
 }
 
 // Adds elements to the dropdown start game menu
@@ -131,19 +156,20 @@ function PopulateHiScores()
 {
     // Loads the JSON
     loadJSON(highScoreURL, function(data){
-        // Sort the table by rendundancy
-        data.sort(function(a,b) {return (a.rec < b.rec) ? 1 : ((b.rec < a.rec) ? -1 : 0);} );
+		// Sort the table by errors
+        data.sort(function(a,b) {return (a.err > b.err) ? 1 : ((b.err > a.err) ? -1 : 0);} );
         
         // Populate the table
         var html = "";
         for (var i = 0; i < data.length; i++)
         {
+            var perc = (Math.round((data[i].err / data[i].l) * 10000)) / 100;
             html += "<tr>";
-                html += "<th scope=\"row\">" + i + "</td>";
+                html += "<th scope=\"row\">" + (i + 1) + "</td>";
                 html += "<td>" + data[i].name + "</td>";
                 html += "<td>" + data[i].subject + "</td>";
-                html += "<td>" + data[i].err + "</td>";
-                html += "<td>" + data[i].rec + "</td>";
+                html += "<td>" + perc + "%" + "</td>";
+                html += "<td>" + data[i].rec + " bit</td>";
             html += "</tr>";
         }
         hiTable.innerHTML = html;
