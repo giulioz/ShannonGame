@@ -2,7 +2,7 @@
 
 <!-- 
     Shannon Game using HTML5 and JavaScript
-    08/11/2016, Giulio Zausa
+    08/11/2016, Giulio Zausa, Leonardo Pinton
 -->
 
 <meta charset="utf-8">
@@ -42,14 +42,17 @@
                 <div class="panel-heading">Statistiche</div>
                 <div class="panel-body">
                     <dl class="dl-horizontal">
-                        <dt>Errori:</dt> <dd><var id="errors">0</var></dd>
-                        <dt>Rindondanza:</dt> <dd><var id="rec">0</var></dd>
+                        <dt>Errori:</dt> <dd><var id="errori">0</var> <var id="percErrors"></var></dd>
+						<dt>Giuste:</dt> <dd><var id="giuste">0</var></dd>
+                        <dt>Rindondanza:</dt> <dd><var id="rindondanza">0</var></dd>
                     </dl>
                 </div>
             </div>
         </div>
     </div>
-    
+	
+	<input class="btn btn-default" type="button" value="TESTO CIFRATO" id="testoCifratoBut">
+
     <!-- Highscores Panel -->
     <div class="panel panel-default topmargin">
         <div class="panel-heading">Punteggi più alti</div>
@@ -70,7 +73,7 @@
     </div>
     
     <!-- Credits -->
-    <div class="text-right text-muted"><i>© 2016, Giulio Zausa</i></div>
+    <div class="text-right text-muted"><i>© 2016, Giulio Zausa, Leonardo Pinton, Matteo Gastaldi</i></div>
 </div>
 
 <!-- Highscore save modal -->
