@@ -25,7 +25,9 @@ var outputSpan  = document.getElementById("output"),
 	ButtonHere  = document.getElementById("ButtonHere");
 	
 // Global Variables
-var currentText, currentIndex, currentErrors, currentLength, currentSubject, currentInfoS, currentInfoT, currentGuesses;
+var currentText, currentIndex, currentErrors, currentLength, currentSubject, currentInfoS, currentInfoT,
+	currentGuesses, currentCifredIndex, cifredErrors, cifredGuesses, cifredLocations, cifredText;
+var part1 = true;
 
 // APPLICATION Starts
 // -----------------------------
@@ -35,62 +37,107 @@ HideButton(true); // Hides Button
 
 // TESTO CIFRATO button Click
 document.getElementById("testoCifratoBut").addEventListener("click", function(){
-    outputSpan.innerText = ErrSentence(currentText, currentGuesses);
+	currentText = texts[currentSubject][1];
+	cifredText = ErrSentence(texts[currentSubject][1], currentGuesses, cifredLocations);
+	currentInfoT = cifredLocations.length * infoPerChar;
+	outputSpan.innerText = cifredText;
 	HideButton(true);
+	part1 = false;
 });
 
 // Keyboard Hook
 RegisterCharEvent(function(key) {
-    // End Condition
-    if (currentIndex < currentText.length)
-    {
-        // Checks for error
-        if (key.toLowerCase() != removeAccents(currentText.substring(currentIndex, currentIndex + 1).toLowerCase())) {
-            // -Error-
-            currentErrors++;
-            errori.innerText = currentErrors;
-        }
-		else {
-            // -Guess-
-            currentGuesses++;
-            giuste.innerText = currentGuesses;
-        }
-        
-        // Update output with another character
-        currentIndex++;
-        outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
-        
-        // Checks if next character is a letter
-        while (currentIndex < currentText.length &&
-                !IsCharOrSpace(removeAccents(currentText.substring(currentIndex, currentIndex + 1)).toUpperCase().charCodeAt(0)))
-        {
-            currentIndex++;
-            outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
+	// -- GAME PART 1 --
+	if(part1)
+	{
+		// End Condition
+		if (currentIndex < currentText.length)
+		{
+			// Checks for error
+			if (key.toLowerCase() != removeAccents(currentText.substring(currentIndex, currentIndex + 1).toLowerCase())) {
+				// -Error-
+				currentErrors++;
+				errori.innerText = currentErrors;
+			}
+			else {
+				// -Guess-
+				currentGuesses++;
+				giuste.innerText = currentGuesses;
+			}
+			
+			// Update output with another character
+			currentIndex++;
+			outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
+			
+			// Checks if next character is a letter
+			while (currentIndex < currentText.length &&
+					!IsCharOrSpace(removeAccents(currentText.substring(currentIndex, currentIndex + 1)).toUpperCase().charCodeAt(0)))
+			{
+				currentIndex++;
+				outputSpan.innerText = RenderGrayedText(currentText, "\u2022", currentIndex);
 
-            // Update statistics with new length
-            currentLength--;
-			currentInfoT = currentLength * infoPerChar;
-        }
+				// Update statistics with new length
+				currentLength--;
+				currentInfoT = currentLength * infoPerChar;
+			}
 
-        // -- STATISTICS --
-        // Percent error
-        var percent = (Math.round((currentErrors / currentLength) * 100000)) / 1000;
-		percErrors.innerText = "(" + percent + "%)";
+			// -- STATISTICS --
+			// Percent error
+			var percent = (Math.round((currentErrors / currentLength) * 100000)) / 1000;
+			percErrors.innerText = "(" + percent + "%)";
 
-        // Information and Rendundancy
-		currentInfoS = currentGuesses * info1Bit + currentErrors * infoPerChar;
-        var rendundancy = (Math.round((currentInfoT - currentInfoS) * 1000)) / 1000;
-		rindondanza.innerText = rendundancy + " bit";
-        
-        // Win Modal - SAVE HIGHSCORE
-        if (currentIndex == currentText.length) {
-            moderrSpan.innerText = currentErrors;
-            $('#hsModal').modal();
-        }
-    }
-	else {
-        HideButton(false);
-    }
+			// Information and Rendundancy
+			currentInfoS = currentGuesses * info1Bit + currentErrors * infoPerChar;
+			var rendundancy = (Math.round((currentInfoT - currentInfoS) * 1000)) / 1000;
+			rindondanza.innerText = rendundancy + " bit";
+			
+			// Win Modal - SAVE HIGHSCORE
+			if (currentIndex == currentText.length) {
+				moderrSpan.innerText = currentErrors;
+				$('#hsModal').modal();
+				HideButton(false);
+			}
+		}
+	}
+	// -- GAME PART 2 --
+	else
+	{
+		// End Condition
+		if (currentCifredIndex < cifredLocations.length)
+		{
+			// Checks for error
+			if (key.toLowerCase() != removeAccents(currentText.substring(cifredLocations[currentCifredIndex], cifredLocations[currentCifredIndex] + 1).toLowerCase())) {
+				// -Error-
+				cifredErrors++;
+				errori.innerText = cifredErrors;
+			}
+			else {
+				// -Guess-
+				cifredGuesses++;
+				giuste.innerText = cifredGuesses;
+			}
+
+			// Update output with another character
+			cifredText = cifredText.replaceAt(cifredLocations[currentCifredIndex], currentText.charAt(cifredLocations[currentCifredIndex]));
+			currentCifredIndex++;
+			outputSpan.innerText = cifredText;
+
+			// -- STATISTICS --
+			// Percent error
+			var percent = (Math.round((cifredErrors / cifredLocations.length) * 100000)) / 1000;
+			percErrors.innerText = "(" + percent + "%)";
+
+			// Information and Rendundancy
+			currentInfoS = cifredGuesses * info1Bit + cifredErrors * infoPerChar;
+			var rendundancy = (Math.round((currentInfoT - currentInfoS) * 1000)) / 1000;
+			rindondanza.innerText = rendundancy + " bit";
+
+			// Win Modal - SAVE HIGHSCORE
+			/*if (currentCifredIndex == cifredLocations.length) {
+				$('#hsModal').modal();
+			}*/
+		}
+	}
 });
 
 // Save Highscore
@@ -103,7 +150,7 @@ function saveClick()
     loadJSON(highScoreURL, function(data){
         var roundRec = Math.round(rec * 100) / 100;
         data.push({"name": nameToSave, "err": currentErrors,
-                    "rec": roundRec, "l": currentLength, "subject": subjects[currentSubject]});
+                	"rec": roundRec, "l": currentLength, "subject": subjects[currentSubject]});
         saveJSON(highScoreURL, data, function () {
             PopulateHiScores();
             $('#hsModal').modal('hide');
@@ -116,11 +163,17 @@ function newGame(subject)
 {
     // Load Texts
 	var rendundancy = 0;
+	part1 = true;
     currentSubject = subject;
-    currentText = GetRandomSentence(texts[subject][randomIntFromInterval(0, texts[subject].length)], nwords).trim();
+   // currentText = GetRandomSentence(texts[subject][randomIntFromInterval(0, texts[subject].length)], nwords).trim();
+	currentText = texts[subject][0];
     currentIndex = 0;
     currentErrors = 0;
     currentGuesses = 0;
+	cifredErrors = 0;
+	cifredGuesses = 0;
+	currentCifredIndex = 0;
+	cifredLocations = [];
 	percErrors.innerText = "(0%)";
 	rindondanza.innerText = rendundancy + " bit";
 	errori.innerText = currentErrors;
