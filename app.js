@@ -14,15 +14,14 @@ var 	info1Bit	= Math.log2(2);
 
 // DOM Elements
 var outputSpan  = document.getElementById("output"),
-    errori      = document.getElementById("errori"),
-    percErrors	= document.getElementById("percErrors"),
-    giuste		= document.getElementById("giuste"),
-    rindondanza = document.getElementById("rindondanza"),
-    moderrSpan  = document.getElementById("modalerr"),
-    nameInput   = document.getElementById("nameInput"),
-    dropd       = document.getElementById("dropd"),
-    hiTable     = document.getElementById("hiTable"),
-	ButtonHere  = document.getElementById("ButtonHere");
+	errori      = document.getElementById("errori"),
+	percErrors	= document.getElementById("percErrors"),
+	giuste		= document.getElementById("giuste"),
+	rindondanza = document.getElementById("rindondanza"),
+	moderrSpan  = document.getElementById("modalerr"),
+	nameInput   = document.getElementById("nameInput"),
+	dropd       = document.getElementById("dropd"),
+	hiTable     = document.getElementById("hiTable");
 	
 // Global Variables
 var currentText, currentIndex, currentErrors, currentLength, currentSubject, currentInfoS, currentInfoT,
@@ -133,9 +132,10 @@ RegisterCharEvent(function(key) {
 			rindondanza.innerText = rendundancy + " bit";
 
 			// Win Modal - SAVE HIGHSCORE
-			/*if (currentCifredIndex == cifredLocations.length) {
+			if (currentCifredIndex == cifredLocations.length) {
+				moderrSpan.innerText = cifredErrors;
 				$('#hsModal').modal();
-			}*/
+			}
 		}
 	}
 });
@@ -143,17 +143,29 @@ RegisterCharEvent(function(key) {
 // Save Highscore
 function saveClick()
 {
-    var nameToSave = nameInput.value;
-	currentInfoS = currentGuesses * info1Bit + currentErrors * infoPerChar;
-	currentInfoT = currentLength * infoPerChar;
-    var rec = currentInfoT - currentInfoS;
-    loadJSON(highScoreURL, function(data){
+	var nameToSave = nameInput.value;
+	if (part1) {
+		currentInfoS = currentGuesses * info1Bit + currentErrors * infoPerChar;
+		currentInfoT = currentLength * infoPerChar;
+	}
+	else {
+		currentInfoS = cifredGuesses * info1Bit + cifredErrors * infoPerChar;
+		currentInfoT = cifredLocations.length * infoPerChar;
+	}
+	var rec = currentInfoT - currentInfoS;
+	loadJSON(highScoreURL, function(data){
         var roundRec = Math.round(rec * 100) / 100;
-        data.push({"name": nameToSave, "err": currentErrors,
-                	"rec": roundRec, "l": currentLength, "subject": subjects[currentSubject]});
+		if (part1) {
+			data.push({ "name": nameToSave, "err": currentErrors, "l": currentLength,
+						"rec": roundRec, "subject": subjects[currentSubject], "part1": part1 });
+		}
+		else {
+			data.push({ "name": nameToSave, "err": cifredErrors, "l": cifredLocations.length,
+						"rec": roundRec, "subject": subjects[currentSubject], "part1": part1 });
+		}
         saveJSON(highScoreURL, data, function () {
-            PopulateHiScores();
-            $('#hsModal').modal('hide');
+			PopulateHiScores();
+			$('#hsModal').modal('hide');
         });
     });
 }
@@ -209,12 +221,19 @@ function PopulateHiScores()
 {
     // Loads the JSON
     loadJSON(highScoreURL, function(data){
-	// Sort the table by errors
-        data.sort(function(a,b) {
-		var percA = a.err / a.l;
-		var percB = b.err / b.l;
-		return (percA > percB) ? 1 : ((percB > percA) ? -1 : 0);
-	} );
+		// Remove all part2
+		for (var i = data.length - 1; i >= 0; i--)  {
+				if (!data[i].part1) {  
+					data.splice(i, 1);
+				}
+		}
+
+		// Sort the table by errors
+		data.sort(function(a,b) {
+			var percA = a.err / a.l;
+			var percB = b.err / b.l;
+			return (percA > percB) ? 1 : ((percB > percA) ? -1 : 0);
+		});
         
         // Populate the table
         var html = "";

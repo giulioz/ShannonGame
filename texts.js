@@ -5,10 +5,8 @@
 	1 Inglese
 */
 
-var subjects = ["Narrativa", "Poesia", "Scienze" , "Matematica"];
+var subjects = [ "Narrativa", "Poesia", "Scienze" , "Matematica", "Inglese" ];
 var texts = [];
-
-
 
 
 // Narrativa
@@ -22,3 +20,6 @@ texts[2] = [ "Le stelle sono corpi celesti costituiti prevalentemente da idrogen
 
 // Matematica (è colpa di ferro)
 texts[3] = [ "Se dal piede di una retta perpendicolare a un piano si traccia la retta perpendicolare a una retta del piano, questa risulta perpendicolare al piano individuato dalle altre due rette" , "L'esponente della potenza al quale bisogna elevare un numero costante (o base)per ottenere un determinato numero." ];
+
+// Inglese
+texts[4] = ["Every day I have breakfast very early because I have to go to school.", "I want to help you with your homework, but I have to go home because my mom is waiting for me." ];
