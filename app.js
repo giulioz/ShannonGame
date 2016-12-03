@@ -21,7 +21,7 @@ var outputSpan  = document.getElementById("output"),
     moderrSpan  = document.getElementById("modalerr"),
     nameInput   = document.getElementById("nameInput"),
     dropd       = document.getElementById("dropd"),
-    hiTable     = document.getElementById("hiTable");
+    hiTable     = document.getElementById("hiTable"),
 	ButtonHere  = document.getElementById("ButtonHere");
 	
 // Global Variables
@@ -209,8 +209,12 @@ function PopulateHiScores()
 {
     // Loads the JSON
     loadJSON(highScoreURL, function(data){
-		// Sort the table by errors
-        data.sort(function(a,b) {return (a.err > b.err) ? 1 : ((b.err > a.err) ? -1 : 0);} );
+	// Sort the table by errors
+        data.sort(function(a,b) {
+		var percA = a.err / a.l;
+		var percB = b.err / b.l;
+		return (percA > percB) ? 1 : ((percB > percA) ? -1 : 0);
+	} );
         
         // Populate the table
         var html = "";
